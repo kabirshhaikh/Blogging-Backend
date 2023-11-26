@@ -16,6 +16,7 @@ const authenticateTheUser = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorised" });
     }
 
+    //Set the user in req:
     req.user = user;
     next();
   } catch (err) {
