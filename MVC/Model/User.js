@@ -22,6 +22,13 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
+  posts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Posts",
+      required: true,
+    },
+  ],
 });
 
 const User = mongoose.model("User - Blogging", userSchema);
