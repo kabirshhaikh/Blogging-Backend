@@ -11,5 +11,6 @@ router.get("/protected-route", isAuthorised, userController.protectedRoute);
 
 //Post's Routes:
 router.post("/create-post", isAuthorised, postsController.createPost);
+router.delete("/delete-post/:id", isAuthorised, postsController.deletePost);
 
 module.exports = router;
