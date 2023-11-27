@@ -1,9 +1,9 @@
 const Posts = require("../Model/Posts");
 const User = require("../Model/User");
 
+//Create new post:
 const createPost = async (req, res, next) => {
   const USER = req.user;
-  console.log("User id is:" + USER);
 
   const loggedInUser = await User.findById(USER);
 
@@ -38,6 +38,34 @@ const createPost = async (req, res, next) => {
   }
 };
 
+//Delete a post:
+const deletePost = async (req, res, next) => {
+  const USER_ID = req.user;
+  const userWhoCreatedPost = await User.findById(USER_ID);
+  const postId = req.params.id;
+  const POST = await Posts.findById(postId);
+  try {
+    if (!POST) {
+      return res.status(500).json("Internal Server Error");
+    }
+    if (!userWhoCreatedPost.posts.includes(postId)) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorised to delete the post" });
+    }
+    const postDeleted = await Posts.findByIdAndDelete(POST);
+    if (!postDeleted) {
+      return res.status(500).json({ message: "Unable to delete the post" });
+    }
+    userWhoCreatedPost.posts.pull(postId);
+    await userWhoCreatedPost.save();
+    return res.status(200).json({ message: "Post deleted sucessfully" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   createPost,
+  deletePost,
 };
