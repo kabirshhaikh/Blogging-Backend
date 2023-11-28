@@ -15,6 +15,7 @@ const postSchema = new Schema({
     ref: "User",
     required: true,
   },
+  postPicture: String,
   createdAt: {
     type: Date,
     default: Date.now(),
