@@ -1,5 +1,6 @@
 const Posts = require("../Model/Posts");
 const User = require("../Model/User");
+const path = require("path");
 
 //Create new post:
 const createPost = async (req, res, next) => {
@@ -13,12 +14,15 @@ const createPost = async (req, res, next) => {
 
   const title = req.body.title;
   const content = req.body.content;
+  const postPicture = req.file;
+  const imagePath = path.join("Images", postPicture.originalname);
 
   try {
     const newPost = new Posts({
       title: title,
       content: content,
       user: USER,
+      postPicture: imagePath,
     });
 
     if (!newPost) {
@@ -71,7 +75,13 @@ const updatePost = async (req, res, next) => {
   const POST_ID = req.params.id;
   const titleToUpdate = req.body.title;
   const contentToUpdate = req.body.content;
-  console.log(titleToUpdate, contentToUpdate);
+
+  const postPicture = req.file;
+  const imagePath = postPicture
+    ? path.join("Images", postPicture.originalname)
+    : null;
+
+  console.log(titleToUpdate, contentToUpdate, imagePath + "From patch");
 
   try {
     const userWhoCreatedPost = await User.findById(USER_ID);
@@ -92,6 +102,10 @@ const updatePost = async (req, res, next) => {
           contentToUpdate === null || contentToUpdate === undefined
             ? post.content
             : contentToUpdate,
+        postPicture:
+          postPicture === null || postPicture === undefined
+            ? post.postPicture
+            : imagePath,
       },
       { new: true }
     );
