@@ -65,7 +65,51 @@ const deletePost = async (req, res, next) => {
   }
 };
 
+//Update a post:
+const updatePost = async (req, res, next) => {
+  const USER_ID = req.user;
+  const POST_ID = req.params.id;
+  const titleToUpdate = req.body.title;
+  const contentToUpdate = req.body.content;
+  console.log(titleToUpdate, contentToUpdate);
+
+  try {
+    const userWhoCreatedPost = await User.findById(USER_ID);
+    const post = await Posts.findById(POST_ID);
+
+    if (!userWhoCreatedPost.posts.includes(POST_ID)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const updatedPost = await Posts.findByIdAndUpdate(
+      POST_ID,
+      {
+        title:
+          titleToUpdate === null || titleToUpdate === undefined
+            ? post.title
+            : titleToUpdate,
+        content:
+          contentToUpdate === null || contentToUpdate === undefined
+            ? post.content
+            : contentToUpdate,
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    } else {
+      return res
+        .status(201)
+        .json({ message: "Post updated sucessfully", updatedPost });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   createPost,
   deletePost,
+  updatePost,
 };
