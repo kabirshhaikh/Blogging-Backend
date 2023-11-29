@@ -4,10 +4,15 @@ const userController = require("../Controller/userController");
 const postsController = require("../Controller/postsController");
 const isAuthorised = require("../Middlewear/jwtHelper");
 const multer = require("../Middlewear/Multer");
+const profilePictureMulter = require("../Middlewear/MulterProfilePicture");
 const commentsController = require("../Controller/Comments");
 
 //User Routes:
-router.post("/signup", userController.signupUser);
+router.post(
+  "/signup",
+  profilePictureMulter.single("profilePicture"),
+  userController.signupUser
+);
 router.post("/login", userController.loginUser);
 router.get("/protected-route", isAuthorised, userController.protectedRoute);
 
@@ -28,6 +33,10 @@ router.patch(
 router.get("/get-all-posts", isAuthorised, postsController.getAllPosts);
 
 //Comments Route:
-router.post("/add-comment/:postId", isAuthorised, commentsController.addComment);
+router.post(
+  "/add-comment/:postId",
+  isAuthorised,
+  commentsController.addComment
+);
 
 module.exports = router;

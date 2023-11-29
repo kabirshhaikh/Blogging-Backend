@@ -33,6 +33,7 @@ const userSchema = new Schema({
       required: true,
     },
   ],
+  profilePicture: String,
 });
 
 const User = mongoose.model("User - Blogging", userSchema);

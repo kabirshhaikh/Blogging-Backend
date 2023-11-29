@@ -1,6 +1,7 @@
 const User = require("../Model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 const SECRETKEY = "thisIsATempSecretKeyIAmUsingForTheBackEndApplication";
 
@@ -12,6 +13,11 @@ const signupUser = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const gender = req.body.gender;
+  const profilePicture = req.file;
+  const imagePath = path.join(
+    "Images-ProfilePicture",
+    profilePicture.originalname
+  );
 
   try {
     const existingUser = await User.findOne({ email });
@@ -24,11 +30,12 @@ const signupUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User({
-      firstName,
-      lastName,
-      email,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
       password: hashedPassword,
       gender: gender,
+      profilePicture: imagePath,
     });
 
     await newUser.save();
