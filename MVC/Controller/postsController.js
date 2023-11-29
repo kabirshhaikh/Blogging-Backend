@@ -122,8 +122,22 @@ const updatePost = async (req, res, next) => {
   }
 };
 
+//Get all posts:
+const getAllPosts = async (req, res, next) => {
+  try {
+    const allPosts = await Posts.find();
+    if (!allPosts) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+    return res.status(200).json({ message: "Found all post's", allPosts });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   createPost,
   deletePost,
   updatePost,
+  getAllPosts,
 };
