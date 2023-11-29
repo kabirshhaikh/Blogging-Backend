@@ -11,6 +11,7 @@ const signupUser = async (req, res, next) => {
   const lastName = req.body.lastName;
   const email = req.body.email;
   const password = req.body.password;
+  const gender = req.body.gender;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -27,6 +28,7 @@ const signupUser = async (req, res, next) => {
       lastName,
       email,
       password: hashedPassword,
+      gender: gender,
     });
 
     await newUser.save();
@@ -77,15 +79,13 @@ const protectedRoute = async (req, res, next) => {
     return res.status(500).json("Internal Server Error");
   }
 
-  return res
-    .status(200)
-    .json({
-      message: `Welcome ${welcomeUser.firstName} to the protected route`,
-    });
+  return res.status(200).json({
+    message: `Welcome ${welcomeUser.firstName} to the protected route`,
+  });
 };
 
 module.exports = {
   signupUser,
   loginUser,
-  protectedRoute
+  protectedRoute,
 };
