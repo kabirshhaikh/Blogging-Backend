@@ -12,10 +12,13 @@ const createPost = async (req, res, next) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 
+  let imagePath = "";
   const title = req.body.title;
   const content = req.body.content;
   const postPicture = req.file;
-  const imagePath = path.join("Images", postPicture.originalname);
+  if (postPicture) {
+    imagePath = path.join("Images", postPicture.originalname);
+  }
 
   try {
     const newPost = new Posts({
