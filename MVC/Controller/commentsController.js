@@ -80,7 +80,43 @@ const editComment = async (req, res, next) => {
   }
 };
 
+//Delete a comment:
+const deleteComment = async (req, res, next) => {
+  const user_id = req.user;
+  const post_id = req.params.postId;
+  const comment_id = req.params.commentId;
+
+  try {
+    const user = await User.findById(user_id);
+    const comment = await Comments.findById(comment_id);
+    const post = await Posts.findById(post_id);
+
+    if (
+      !user ||
+      !comment ||
+      !post ||
+      comment.user.toString() !== user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const deleteComment = await Comments.deleteOne({ _id: comment_id });
+
+    await Posts.findByIdAndUpdate(post_id, { $pull: { comments: comment_id } });
+
+    if (!deleteComment) {
+      return res.status(500).json({ message: "Unable to delete the comment" });
+    }
+
+    return res.status(200).json({ message: "Comment deleted!" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   addComment,
   editComment,
+  deleteComment,
 };

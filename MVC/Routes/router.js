@@ -43,5 +43,10 @@ router.patch(
   isAuthorised,
   commentsController.editComment
 );
+router.delete(
+  "/delete-comment/:postId/:commentId",
+  isAuthorised,
+  commentsController.deleteComment
+);
 
 module.exports = router;
