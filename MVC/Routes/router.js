@@ -5,7 +5,7 @@ const postsController = require("../Controller/postsController");
 const isAuthorised = require("../Middlewear/jwtHelper");
 const multer = require("../Middlewear/Multer");
 const profilePictureMulter = require("../Middlewear/MulterProfilePicture");
-const commentsController = require("../Controller/Comments");
+const commentsController = require("../Controller/commentsController");
 
 //User Routes:
 router.post(
@@ -37,6 +37,11 @@ router.post(
   "/add-comment/:postId",
   isAuthorised,
   commentsController.addComment
+);
+router.patch(
+  "/edit-comment/:postId/:commentId",
+  isAuthorised,
+  commentsController.editComment
 );
 
 module.exports = router;
