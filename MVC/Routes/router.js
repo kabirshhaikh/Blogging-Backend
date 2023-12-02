@@ -6,6 +6,7 @@ const isAuthorised = require("../Middlewear/jwtHelper");
 const multer = require("../Middlewear/Multer");
 const profilePictureMulter = require("../Middlewear/MulterProfilePicture");
 const commentsController = require("../Controller/commentsController");
+const likesController = require("../Controller/likesController");
 
 //User Routes:
 router.post(
@@ -53,5 +54,8 @@ router.delete(
   isAuthorised,
   commentsController.deleteComment
 );
+
+//Likes Routes:
+router.post("/add-like/:postId", isAuthorised, likesController.postLike);
 
 module.exports = router;
