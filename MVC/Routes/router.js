@@ -15,6 +15,11 @@ router.post(
 );
 router.post("/login", userController.loginUser);
 router.get("/protected-route", isAuthorised, userController.protectedRoute);
+router.get(
+  "/get-all-posts-of-user/:userId",
+  isAuthorised,
+  userController.getAllPostsOfAUser
+);
 
 //Post's Routes:
 router.post(

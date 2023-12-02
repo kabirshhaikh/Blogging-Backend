@@ -2,11 +2,13 @@ const User = require("../Model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const Posts = require("../Model/Posts");
 
 const SECRETKEY = "thisIsATempSecretKeyIAmUsingForTheBackEndApplication";
 
 const saltRounds = 10;
 
+//Sign up user:
 const signupUser = async (req, res, next) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
@@ -46,6 +48,7 @@ const signupUser = async (req, res, next) => {
   }
 };
 
+//Login user:
 const loginUser = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -78,6 +81,31 @@ const loginUser = async (req, res, next) => {
   }
 };
 
+//Get all posts of a specific user:
+const getAllPostsOfAUser = async (req, res, next) => {
+  const user_id = req.params.userId;
+  try {
+    const user = await User.findById(user_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "No posts found!" });
+    }
+
+    const posts = await Posts.find({ user: user._id });
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts made by user" });
+    }
+
+    return res
+      .status(500)
+      .json({ message: `All posts made by ${user.firstName} `, posts });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const protectedRoute = async (req, res, next) => {
   const user = req.user;
   const welcomeUser = await User.findById(user);
@@ -95,4 +123,5 @@ module.exports = {
   signupUser,
   loginUser,
   protectedRoute,
+  getAllPostsOfAUser,
 };
