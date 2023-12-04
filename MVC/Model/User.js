@@ -36,5 +36,7 @@ const userSchema = new Schema({
   profilePicture: String,
 });
 
+userSchema.index({ firstName: "text", lastName: "text" });
+
 const User = mongoose.model("User - Blogging", userSchema);
 module.exports = User;

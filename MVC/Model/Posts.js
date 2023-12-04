@@ -34,4 +34,6 @@ const postSchema = new Schema({
   ],
 });
 
+postSchema.index({ title: "text", content: "text" });
+
 module.exports = mongoose.model("Posts - Blogging", postSchema);
