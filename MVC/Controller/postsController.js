@@ -138,9 +138,31 @@ const getAllPosts = async (req, res, next) => {
   }
 };
 
+//Search a post:
+const searchPost = async (req, res, next) => {
+  const searchQuery = req.query.q;
+  try {
+    const results = await Posts.find(
+      { $text: { $search: searchQuery } },
+      { score: { $meta: "textScore" } }
+    ).sort({ score: { $meta: "textScore" } });
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: "Unable to seach the request" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Found the search results", results });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json("Internal Server Error!");
+  }
+};
+
 module.exports = {
   createPost,
   deletePost,
   updatePost,
   getAllPosts,
+  searchPost,
 };
