@@ -1,5 +1,13 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+const destinationDirectory = path.join(__dirname, "../Images-ProfilePicture");
+
+// Ensure the destination directory exists, or create it
+if (!fs.existsSync(destinationDirectory)) {
+  fs.mkdirSync(destinationDirectory, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
