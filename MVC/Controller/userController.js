@@ -67,6 +67,10 @@ const loginUser = async (req, res, next) => {
 
   try {
     const loggedInUser = await User.findOne({ email });
+    
+    if (!loggedInUser) {
+      return res.status(401).json({ message: "User not found in the database!" });
+    }
 
     const decodedPassword = await bcrypt.compare(
       password,
