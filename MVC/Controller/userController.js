@@ -24,7 +24,7 @@ const signupUser = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "User already exists, please choose an unique email",
       });
     }
@@ -42,7 +42,19 @@ const signupUser = async (req, res, next) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: "New user created", user: newUser });
+    const sendData = {
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      gender: newUser.gender,
+      profilePicture: newUser.profilePicture,
+    };
+
+    return res.status(200).json({
+      message: "New user created",
+      user: sendData,
+      redirectTo: "/login",
+    });
   } catch (err) {
     console.log(err);
   }
