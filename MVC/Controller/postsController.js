@@ -132,7 +132,9 @@ const getAllPosts = async (req, res, next) => {
     if (!allPosts) {
       return res.status(500).json({ message: "Internal Server Error" });
     }
-    return res.status(200).json({ message: "Found all post's", allPosts });
+    return res
+      .status(200)
+      .json({ message: "Found all post's", allPosts });
   } catch (err) {
     console.log(err);
   }

@@ -115,8 +115,31 @@ const deleteComment = async (req, res, next) => {
   }
 };
 
+//Get All Comments:
+const getAllComments = async (req, res, next) => {
+  const post_id = req.params.postId;
+  console.log("Id of post:" + post_id);
+
+  try {
+    const post = await Posts.findById(post_id);
+    const comments = await Comments.find({ post: post_id });
+    if (!comments) {
+      return res.status(404).json({ mesage: "Post not found!" });
+    }
+
+    return res.status(201).json({
+      message: `Found the comments of the post ${post.title}`,
+      comments: comments,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error!" });
+  }
+};
+
 module.exports = {
   addComment,
   editComment,
   deleteComment,
+  getAllComments,
 };

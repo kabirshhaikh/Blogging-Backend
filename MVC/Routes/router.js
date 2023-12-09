@@ -55,6 +55,13 @@ router.delete(
   commentsController.deleteComment
 );
 
+router.get(
+  "/get-all-comments/:postId",
+  isAuthorised,
+  commentsController.getAllComments
+);
+
+//Search:
 router.get("/search-post", isAuthorised, postsController.searchPost);
 
 //Likes Routes:
