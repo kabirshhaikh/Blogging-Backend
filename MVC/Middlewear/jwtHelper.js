@@ -4,11 +4,11 @@ const User = require("../Model/User");
 
 const authenticateTheUser = async (req, res, next) => {
   const token = req.headers.authorization;
+  if (!token ) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
   const tokenWithoutBearer = token.replace("Bearer ", "");
   console.log("Recieved token:" + token);
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorised" });
-  }
 
   try {
     const decodedToken = jwt.verify(tokenWithoutBearer, SECRETKEY);
