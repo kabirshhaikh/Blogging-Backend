@@ -44,7 +44,7 @@ router.post(
   isAuthorised,
   commentsController.addComment
 );
-router.patch(
+router.put(
   "/edit-comment/:postId/:commentId",
   isAuthorised,
   commentsController.editComment
