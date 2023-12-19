@@ -7,34 +7,27 @@ const postLike = async (req, res, next) => {
   const post_id = req.params.postId;
 
   try {
-    const user = await User.findById(user_id);
     const post = await Posts.findById(post_id);
+    const user = await User.findById(user_id);
 
-    if (!user || !post) {
-      return res.status(404).json({ message: "User or Post not found!" });
+    if (!post || !user) {
+      return res.status(404).json({ message: "Couldn't find post or user" });
     }
 
-    const userAlreadyLiked = post.likes.some((like) =>
-      like.user.equals(user._id)
-    );
-
-    if (userAlreadyLiked) {
-      return res.status(400).json({ message: "User already liked this post" });
-    }
-
-    const likeObject = new Likes({
-      user: user._id,
-      post: post._id,
+    const like = new Likes({
+      user: user_id,
+      post: post_id,
     });
 
-    await likeObject.save();
+    await like.save();
 
-    await post.likes.push(likeObject._id);
-    await post.save(); // Save the post with the updated likes array
+    post.likes.push(like._id);
+    await post.save();
 
     return res.status(201).json({
-      message: `Like added to the post by user ${user.firstName}`,
-      likeObject,
+      message: `Like added by ${user.firstName}`,
+      likeObject: like,
+      postObject: post,
     });
   } catch (err) {
     console.log(err);
