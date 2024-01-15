@@ -21,7 +21,10 @@ const postSchema = new Schema({
       ref: "Comments",
     },
   ],
-  postPicture: String,
+  postPicture: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
