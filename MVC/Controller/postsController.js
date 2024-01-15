@@ -1,6 +1,20 @@
 const Posts = require("../Model/Posts");
 const User = require("../Model/User");
 const path = require("path");
+const S3 = require("../Config/Aws-Config");
+const { Readable } = require("stream");
+const { v4: uuidv4 } = require("uuid");
+const AWS = require("aws-sdk");
+const fs = require("fs");
+
+AWS.config.update({
+  accessKeyId: "AKIA4MTWNO7RVOEA3DSZ",
+  secretAccessKey: "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",
+  region: "us-east-1",
+});
+
+// Create an S3 instance
+const s3 = new AWS.S3();
 
 //Create new post:
 const createPost = async (req, res, next) => {
@@ -9,40 +23,74 @@ const createPost = async (req, res, next) => {
   const loggedInUser = await User.findById(USER);
 
   if (!loggedInUser) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Error" });
   }
 
-  let imagePath = "";
   const title = req.body.title;
   const content = req.body.content;
   const postPicture = req.file;
-  if (postPicture) {
-    imagePath = path.join("Images", postPicture.originalname);
-  }
+  const picturePath = postPicture.path;
 
-  try {
-    const newPost = new Posts({
-      title: title,
-      content: content,
-      user: USER,
-      postPicture: imagePath,
-    });
+  let binaryDataa = "";
+  fs.readFile(picturePath, async (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Something went wrong! Picture upload problem, hence cannot upload the image to S3."
+      });
+    } else {
+      const DATA = data.toString("base64");
+      binaryDataa = Buffer.from(DATA, "base64");
+      try {
+        let s3Key = "";
+        if (postPicture) {
+          s3Key = `Images/${postPicture.originalname}`;
 
-    if (!newPost) {
-      return res.status(500).json({ message: "Something went wrong!" });
+          const uploadParams = {
+            Bucket: "postimageblogging",
+            Key: s3Key,
+            Body: binaryDataa,
+            ContentType: postPicture.mimetype,
+          };
+
+          s3.putObject(uploadParams, (error, data) => {
+            if (error) {
+              console.error(error);
+              return res
+                .status(500)
+                .json({ message: " Error uploading image to S3 bucket" });
+            }
+            console.log(data);
+            console.log("Image uploaded sucessfully!");
+          });
+        }
+
+        const newPost = new Posts({
+          title: title,
+          content: content,
+          user: USER,
+          postPicture: s3Key,
+        });
+
+        const savedPost = await newPost.save();
+
+        if (!savedPost) {
+          return res.status(500).json({ message: "Something went wrong!" });
+        }
+
+        loggedInUser.posts.push(savedPost._id);
+        await loggedInUser.save();
+
+        return res.status(201).json({
+          message: "New post created successfully",
+          new: savedPost,
+        });
+      } catch (err) {
+        console.error("Error creating post:", err);
+        return res.status(500).json({ message: "Internal Server Error" });
+      }
     }
-
-    newPost.save();
-
-    loggedInUser.posts.push(newPost._id);
-    await loggedInUser.save();
-
-    return res
-      .status(201)
-      .json({ message: "New post created sucessfully", new: newPost });
-  } catch (err) {
-    console.log(err);
-  }
+  });
 };
 
 //Delete a post:
@@ -132,9 +180,7 @@ const getAllPosts = async (req, res, next) => {
     if (!allPosts) {
       return res.status(500).json({ message: "Internal Server Error" });
     }
-    return res
-      .status(200)
-      .json({ message: "Found all post's", allPosts });
+    return res.status(200).json({ message: "Found all post's", allPosts });
   } catch (err) {
     console.log(err);
   }
