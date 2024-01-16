@@ -3,10 +3,21 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const Posts = require("../Model/Posts");
+const AWS = require("aws-sdk");
+const fs = require("fs");
 
 const SECRETKEY = "thisIsATempSecretKeyIAmUsingForTheBackEndApplication";
 
 const saltRounds = 10;
+
+AWS.config.update({
+  accessKeyId: "AKIA4MTWNO7RVOEA3DSZ",
+  secretAccessKey: "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",
+  region: "us-east-2",
+});
+
+// Create an S3 instance
+const s3 = new AWS.S3();
 
 //Sign up user:
 const signupUser = async (req, res, next) => {
@@ -16,48 +27,81 @@ const signupUser = async (req, res, next) => {
   const password = req.body.password;
   const gender = req.body.gender;
   const profilePicture = req.file;
-  const imagePath = path.join(
-    "Images-ProfilePicture",
-    profilePicture.originalname
-  );
 
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists, please choose an unique email",
+  const profilePicurePath = profilePicture.path;
+  let binaryData = "";
+
+  fs.readFile(profilePicurePath, async (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message:
+          "Something went wrong with upload of profile picture to S3 Bucket",
       });
+    } else {
+      const DATA = data.toString("base64");
+      binaryData = Buffer.from(DATA, "base64");
+      let s3ProfilePictureKey = "";
+
+      if (profilePicture) {
+        s3ProfilePictureKey = `ProfilePicture/${profilePicture.originalname}`;
+
+        const params = {
+          Bucket: "profilepicturebucketforbackendproject",
+          Key: s3ProfilePictureKey,
+          Body: binaryData,
+          ContentType: profilePicture.mimetype,
+        };
+
+        s3.putObject(params, (err, data) => {
+          if (err) {
+            console.log(err + "Unable to upload the profile picture to S3");
+          } else {
+            console.log(
+              "Sucessfully uploaded the profile picture to S3 bucket"
+            );
+          }
+        });
+        try {
+          const existingUser = await User.findOne({ email });
+          if (existingUser) {
+            return res.status(400).json({
+              message: "User already exists, please choose an unique email",
+            });
+          }
+
+          const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+          const newUser = new User({
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: hashedPassword,
+            gender: gender,
+            profilePicture: s3ProfilePictureKey,
+          });
+
+          await newUser.save();
+
+          const sendData = {
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            email: newUser.email,
+            gender: newUser.gender,
+            profilePicture: newUser.profilePicture,
+          };
+
+          return res.status(200).json({
+            message: "New user created",
+            user: sendData,
+            redirectTo: "/login",
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      }
     }
-
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new User({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: hashedPassword,
-      gender: gender,
-      profilePicture: imagePath,
-    });
-
-    await newUser.save();
-
-    const sendData = {
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      gender: newUser.gender,
-      profilePicture: newUser.profilePicture,
-    };
-
-    return res.status(200).json({
-      message: "New user created",
-      user: sendData,
-      redirectTo: "/login",
-    });
-  } catch (err) {
-    console.log(err);
-  }
+  });
 };
 
 //Login user:
@@ -67,9 +111,11 @@ const loginUser = async (req, res, next) => {
 
   try {
     const loggedInUser = await User.findOne({ email });
-    
+
     if (!loggedInUser) {
-      return res.status(401).json({ message: "User not found in the database!" });
+      return res
+        .status(401)
+        .json({ message: "User not found in the database!" });
     }
 
     const decodedPassword = await bcrypt.compare(
