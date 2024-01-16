@@ -33,7 +33,10 @@ const userSchema = new Schema({
       required: true,
     },
   ],
-  profilePicture: String,
+  profilePicture: {
+    type: String,
+    required: true,
+  },
 });
 
 userSchema.index({ firstName: "text", lastName: "text" });
