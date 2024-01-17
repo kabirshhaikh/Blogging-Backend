@@ -15,6 +15,7 @@ Prerequisites
 * AWS S3 buckets for image storage
 
 Clone the repo: git clone https://github.com/kabirshhaikh/Blogging-Backend.git
+
 npm install
 
 Access the API at 4040
