@@ -5,15 +5,19 @@ const path = require("path");
 const Posts = require("../Model/Posts");
 const AWS = require("aws-sdk");
 const fs = require("fs");
+require('dotenv').config();
 
 const SECRETKEY = "thisIsATempSecretKeyIAmUsingForTheBackEndApplication";
 
 const saltRounds = 10;
+const ACCESSKEYID = process.env.accessKeyId;
+const SECRETACESSKEY = process.env.secretAccessKey;
+const REGION = process.env.regionForProfilePicture;
 
 AWS.config.update({
-  accessKeyId: "AKIA4MTWNO7RVOEA3DSZ",
-  secretAccessKey: "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",
-  region: "us-east-2",
+  accessKeyId: ACCESSKEYID,
+  secretAccessKey: SECRETACESSKEY,
+  region: REGION,
 });
 
 // Create an S3 instance
