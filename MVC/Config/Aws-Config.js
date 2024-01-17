@@ -1,9 +1,14 @@
 const AWS = require("aws-sdk");
+require("dotenv").config();
+
+const ACCESSKEYID = process.env.accessKeyId;
+const SECRETACCESSKEY = process.env.secretAccessKey;
+const REGION = process.env.regionForPostImages;
 
 AWS.config.update({
-  accessKeyId: "AKIA4MTWNO7RVOEA3DSZ",
-  secretAccessKey: "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",
-  region: "us-east-1",
+  accessKeyId: ACCESSKEYID,
+  secretAccessKey: SECRETACCESSKEY,
+  region: REGION,
 });
 
 const s3 = new AWS.S3();

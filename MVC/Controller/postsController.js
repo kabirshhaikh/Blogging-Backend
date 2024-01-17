@@ -6,11 +6,16 @@ const { Readable } = require("stream");
 const { v4: uuidv4 } = require("uuid");
 const AWS = require("aws-sdk");
 const fs = require("fs");
+require("dotenv").config();
+
+const ACCESSKEYID = process.env.accessKeyId;
+const SECRETACCESSKEY = process.env.secretAccessKey;
+const REGION = process.env.regionForPostImages;
 
 AWS.config.update({
-  accessKeyId: "AKIA4MTWNO7RVOEA3DSZ",
-  secretAccessKey: "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",
-  region: "us-east-1",
+  accessKeyId: ACCESSKEYID,
+  secretAccessKey: SECRETACCESSKEY,
+  region: REGION,
 });
 
 // Create an S3 instance
@@ -36,7 +41,8 @@ const createPost = async (req, res, next) => {
     if (err) {
       console.log(err);
       return res.status(500).json({
-        message: "Something went wrong! Picture upload problem, hence cannot upload the image to S3."
+        message:
+          "Something went wrong! Picture upload problem, hence cannot upload the image to S3.",
       });
     } else {
       const DATA = data.toString("base64");
