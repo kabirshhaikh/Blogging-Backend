@@ -1,4 +1,5 @@
-Overview
+Overview:
+
 This project is a backend REST API developed in Node.js for a versatile and scalable blogging website. The API handles user authentication, post creation, commenting, and liking functionalities. It leverages Docker for containerization, AWS S3 buckets for image storage, and follows the MVC architecture for maintainability.
 Features
 * User authentication using JWT tokens.
